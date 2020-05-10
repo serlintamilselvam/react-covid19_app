@@ -1,0 +1,35 @@
+.stats-component {
+
+    .title-div {
+        font-size: 18px;
+        color: #fff;
+        text-transform: uppercase;
+        font-weight: bold;
+        padding: 20px;
+    }
+
+    .overall-stats, .new-stats {
+        font-size: 14px;
+        padding-top: 10px;
+
+        table {
+            margin: 0 auto;
+
+            tbody {
+                color: #fff;
+                font-weight: bold;
+
+                tr {
+                    
+                    td, th {
+                        padding: 0px 10px;
+                    }
+
+                }
+
+            }
+
+        }
+    }
+
+}
