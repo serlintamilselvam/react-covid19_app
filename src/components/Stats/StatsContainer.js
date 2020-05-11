@@ -1,24 +1,10 @@
 import React from 'react'
-// import { geolocated } from "react-geolocated";
-import RiseLoader from 'react-spinners/RiseLoader'
+// import { geolocated } from "react-geolocated"
 import {Container, Row, Col} from 'react-bootstrap'
 import StatsComponent from './StatsComponent'
 import StatsAPI from './StatsAPI'
+import './StatsContainer.scss'
 const statsObj = new StatsAPI()
-
-function OverLayLoader(props) {
-    return (
-        <div className="overlay-loader">
-            <div className="loader-wrapper">
-                <RiseLoader
-                    size={30}
-                    color={"#24B997"}
-                    loading={props.loading}
-                />
-            </div>
-        </div>
-    )
-}
 
 function ChartContainer(props) {
     return (
@@ -32,7 +18,7 @@ function ChartContainer(props) {
                             world={props.graphData.worldChartData} 
                         />
                     </Col>
-                    <Col md={6} xs={12} lg={6}>
+                    <Col md={6} xs={12} lg={6} className="country-chart">
                         <StatsComponent 
                             isWorldStats={false} 
                             countryStats={props.graphData.countryDetails} 
@@ -42,6 +28,15 @@ function ChartContainer(props) {
                     </Col>
                 </Row>
             </Container>
+            <div className="stats-taken-time">
+                <div className="api-updated-time">
+                    <b>Stats taken at:</b> {props.graphData.world.statistic_taken_at} IST
+                </div>
+                <div className="api-credits">
+                    <b>Data Credits: </b> 
+                        <a href="https://rapidapi.com/astsiatsko/api/coronavirus-monitor">Coronavirus monitor by astsiatsko</a>
+                </div>
+            </div>
         </div>
 
     )
@@ -103,9 +98,7 @@ class StatsContainer extends React.Component {
     render() {
         return (
             <div className="covid-status">
-                {/* <OverLayLoader loading={!this.state.isLoaded} /> */}
                 <ChartContainer graphData={this.state} />
-                {/* {(this.state.isLoaded) ? <ChartContainer graphData={this.state} /> : "" } */}
             </div>
         )
     }

@@ -1,0 +1,23 @@
+$breakpoint-tablet: 767px;
+
+.chart-container {
+
+    .stats-taken-time {
+        text-align: right;
+        padding: 20px 20px 0;
+        color: #d3d3d3cc;
+        font-size: 12px;
+
+        a {
+            color: teal;
+        }
+    }
+
+    @media (max-width: $breakpoint-tablet) {
+        .country-chart {
+            border-top: 1px solid #d3d3d3;
+            margin-top: 30px;
+        }
+    }
+
+}
