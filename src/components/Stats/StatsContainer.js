@@ -1,16 +1,60 @@
 import React from 'react'
 // import { geolocated } from "react-geolocated";
+import RiseLoader from 'react-spinners/RiseLoader'
 import {Container, Row, Col} from 'react-bootstrap'
 import StatsComponent from './StatsComponent'
 import StatsAPI from './StatsAPI'
 const statsObj = new StatsAPI()
+
+function OverLayLoader(props) {
+    return (
+        <div className="overlay-loader">
+            <div className="loader-wrapper">
+                <RiseLoader
+                    size={30}
+                    color={"#24B997"}
+                    loading={props.loading}
+                />
+            </div>
+        </div>
+    )
+}
+
+function ChartContainer(props) {
+    return (
+        <div className="chart-container">
+            <Container>
+                <Row>
+                    <Col xs={12} md={6} lg={6}>
+                        <StatsComponent 
+                            isWorldStats={true} 
+                            worldStats={props.graphData.world} 
+                            world={props.graphData.worldChartData} 
+                        />
+                    </Col>
+                    <Col md={6} xs={12} lg={6}>
+                        <StatsComponent 
+                            isWorldStats={false} 
+                            countryStats={props.graphData.countryDetails} 
+                            worldStats={props.graphData.country} 
+                            world={props.graphData.countryChartData} 
+                        />
+                    </Col>
+                </Row>
+            </Container>
+        </div>
+
+    )
+}
 
 class StatsContainer extends React.Component {
 
     constructor() {
         super()
         this.state = {
+            isLoaded: false,
             countryList: [],
+            defaultCountry: 'India',
             world : {
                 total_cases: '',
                 active_cases: '',
@@ -21,7 +65,8 @@ class StatsContainer extends React.Component {
                 serious_critical: '',
                 total_cases_per_1m_population: ''
             },
-            countryName: 'India',
+            countryDetails: {},
+            countryName: 'IN',
             country: {
                 total_cases: '',
                 active_cases: '',
@@ -58,16 +103,9 @@ class StatsContainer extends React.Component {
     render() {
         return (
             <div className="covid-status">
-                <Container>
-                    <Row>
-                        <Col xs={12} md={6} lg={6}>
-                            <StatsComponent statsTopic='World' worldStats={this.state.world} world={this.state.worldChartData} />
-                        </Col>
-                        <Col md={6} xs={12} lg={6}>
-                            <StatsComponent statsTopic={this.state.countryName} worldStats={this.state.country} world={this.state.countryChartData} />
-                        </Col>
-                    </Row>
-                </Container>
+                {/* <OverLayLoader loading={!this.state.isLoaded} /> */}
+                <ChartContainer graphData={this.state} />
+                {/* {(this.state.isLoaded) ? <ChartContainer graphData={this.state} /> : "" } */}
             </div>
         )
     }
@@ -90,6 +128,10 @@ class StatsContainer extends React.Component {
         return worldPieChart
     }
 
+    countyDetailsFromJSON(countryList,countryName) {
+        return countryList.find(element => element.name === countryName)
+    }
+
     assignStateValues(str='world',data) {
         if(str === 'world') {
             var pieChartData = this.createDataArray(data)
@@ -107,9 +149,12 @@ class StatsContainer extends React.Component {
                 }
             })
         } else if (str === 'list') {
+
+            var foundCounrty = this.countyDetailsFromJSON(data,this.state.defaultCountry)
             this.setState((previousState) => {
                 return {
                     ...previousState,
+                    countryDetails: foundCounrty,
                     countryList: data
                 }
             })
@@ -118,6 +163,7 @@ class StatsContainer extends React.Component {
                 var pieChartData = this.createDataArray(data)
                 return {
                     ...previousState,
+                    isLoaded: true,
                     country: data,
                     countryChartData: {
                         ...previousState.countryChartData.labels,
@@ -135,7 +181,7 @@ class StatsContainer extends React.Component {
         statsObj.getWorldUpdate()
             .then((response) => {
                 this.assignStateValues('world', response.data)
-                this.getCountryCoronaStats(this.state.countryName)
+                this.getCountryCoronaStats(this.state.countryDetails.name)
             })
             .catch((error) => {
                 console.log(error);
@@ -155,8 +201,7 @@ class StatsContainer extends React.Component {
     getCoronaAffectedCountryList() {
         statsObj.getCountryList()
             .then((response) => {
-                var filtered = response.data.affected_countries.filter((el) => el !== '')
-                this.assignStateValues('list',filtered)
+                this.assignStateValues('list',response.data)
                 this.getWorldCoronaStats()
             })
             .catch((error) => {
