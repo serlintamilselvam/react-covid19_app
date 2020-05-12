@@ -1,46 +1,67 @@
 import React from 'react'
-// import { geolocated } from "react-geolocated"
 import {Container, Row, Col} from 'react-bootstrap'
 import StatsComponent from './StatsComponent'
+import CountrySelect from '../CountrySelect/CountrySelect'
+import AwarenessCarousel from '../AwarenessCarousel/AwarenessCarousel'
 import StatsAPI from './StatsAPI'
 import './StatsContainer.scss'
 const statsObj = new StatsAPI()
 
-function ChartContainer(props) {
-    return (
-        <div className="chart-container">
-            <Container>
-                <Row>
-                    <Col xs={12} md={6} lg={6}>
-                        <StatsComponent 
-                            isWorldStats={true} 
-                            worldStats={props.graphData.world} 
-                            world={props.graphData.worldChartData} 
-                        />
-                    </Col>
-                    <Col md={6} xs={12} lg={6} className="country-chart">
-                        <StatsComponent 
-                            isWorldStats={false} 
-                            countryStats={props.graphData.countryDetails} 
-                            worldStats={props.graphData.country} 
-                            world={props.graphData.countryChartData} 
-                        />
-                    </Col>
-                </Row>
-            </Container>
-            <div className="stats-taken-time">
-                <div className="api-updated-time">
-                    <b>Stats taken at:</b> {props.graphData.world.statistic_taken_at} IST
-                </div>
-                <div className="api-credits">
-                    <b>Data Credits: </b> 
-                        <a href="https://rapidapi.com/astsiatsko/api/coronavirus-monitor">Coronavirus monitor by astsiatsko</a>
+
+class ChartContainer extends React.Component {
+
+    constructor() {
+        super()
+        this.handleChangeEvent = this.handleChangeEvent.bind(this)
+    }
+
+
+    handleChangeEvent(alpha3Code) {
+        this.props.handleChangeEvent(alpha3Code)
+    }
+
+    render() {
+        return (
+            <div className="chart-container">
+                <Container>
+                    <Row>
+                        <Col xs={12} md={6} lg={6}>
+                            <StatsComponent 
+                                isWorldStats={true} 
+                                worldStats={this.props.graphData.world} 
+                                world={this.props.graphData.worldChartData} 
+                            />
+                        </Col>
+                        <Col md={6} xs={12} lg={6} className="country-chart">
+                            <StatsComponent 
+                                isWorldStats={false} 
+                                countryStats={this.props.graphData.countryDetails} 
+                                worldStats={this.props.graphData.country} 
+                                world={this.props.graphData.countryChartData} 
+                            />
+                            { (this.props.graphData.countryList.length) ? 
+                                <CountrySelect handleChangeEvent={this.handleChangeEvent} optionValues={this.props.graphData.countryList} /> : 
+                                '' 
+                            }
+                        </Col>
+                    </Row>
+                </Container>
+                <AwarenessCarousel />
+                <div className="stats-taken-time">
+                    <div className="api-updated-time">
+                        <b>Stats taken at:</b> {this.props.graphData.world.statistic_taken_at} IST
+                    </div>
+                    <div className="api-credits">
+                        <b>Data Credits: </b> 
+                            <a href="https://rapidapi.com/astsiatsko/api/coronavirus-monitor">Coronavirus monitor by astsiatsko</a>
+                    </div>
                 </div>
             </div>
-        </div>
-
-    )
+    
+        )
+    }
 }
+
 
 class StatsContainer extends React.Component {
 
@@ -49,7 +70,7 @@ class StatsContainer extends React.Component {
         this.state = {
             isLoaded: false,
             countryList: [],
-            defaultCountry: 'India',
+            defaultCountry: 'Canada',
             world : {
                 total_cases: '',
                 active_cases: '',
@@ -61,7 +82,6 @@ class StatsContainer extends React.Component {
                 total_cases_per_1m_population: ''
             },
             countryDetails: {},
-            countryName: 'IN',
             country: {
                 total_cases: '',
                 active_cases: '',
@@ -93,12 +113,13 @@ class StatsContainer extends React.Component {
         }
         this.getWorldCoronaStats = this.getWorldCoronaStats.bind(this)
         this.assignStateValues = this.assignStateValues.bind(this)
+        this.handleChangeEvent = this.handleChangeEvent.bind(this)
     }
 
     render() {
         return (
             <div className="covid-status">
-                <ChartContainer graphData={this.state} />
+                <ChartContainer handleChangeEvent={this.handleChangeEvent} graphData={this.state} />
             </div>
         )
     }
@@ -121,8 +142,8 @@ class StatsContainer extends React.Component {
         return worldPieChart
     }
 
-    countyDetailsFromJSON(countryList,countryName) {
-        return countryList.find(element => element.name === countryName)
+    countryDetailsFromJSON(countryList,defaultCountryName) {
+        return countryList.find(element => element.name === defaultCountryName)
     }
 
     assignStateValues(str='world',data) {
@@ -143,11 +164,11 @@ class StatsContainer extends React.Component {
             })
         } else if (str === 'list') {
 
-            var foundCounrty = this.countyDetailsFromJSON(data,this.state.defaultCountry)
+            var foundCountry = this.countryDetailsFromJSON(data,this.state.defaultCountry)
             this.setState((previousState) => {
                 return {
                     ...previousState,
-                    countryDetails: foundCounrty,
+                    countryDetails: foundCountry,
                     countryList: data
                 }
             })
@@ -170,11 +191,23 @@ class StatsContainer extends React.Component {
         }
     }
 
+    handleChangeEvent(alpha3Code) {
+        const returnedJSON = this.state.countryList.find(element => element.alpha3Code === alpha3Code)
+        this.setState((previousState) => {
+            return {
+                ...previousState,
+                countryDetails: returnedJSON,
+                defaultCountry: returnedJSON.name
+            }
+        })
+        this.getCountryCoronaStats(alpha3Code)
+    }
+
     getWorldCoronaStats() {
         statsObj.getWorldUpdate()
             .then((response) => {
                 this.assignStateValues('world', response.data)
-                this.getCountryCoronaStats(this.state.countryDetails.name)
+                this.getCountryCoronaStats(this.state.countryDetails.alpha3Code)
             })
             .catch((error) => {
                 console.log(error);
@@ -203,12 +236,5 @@ class StatsContainer extends React.Component {
     }
 
 }
-
-// export default geolocated({
-//     positionOptions: {
-//         enableHighAccuracy: false,
-//     },
-//     userDecisionTimeout: 5000,
-// })(StatsContainer);
 
 export default StatsContainer

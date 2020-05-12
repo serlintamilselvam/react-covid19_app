@@ -1,0 +1,12 @@
+$breakpoint-tablet: 767px;
+
+.select-wrapper {
+    width: 75%;
+    margin: 0 auto;
+    padding-top: 20px;
+
+    @media (max-width: $breakpoint-tablet) {
+        width: 100%;
+    }
+
+}

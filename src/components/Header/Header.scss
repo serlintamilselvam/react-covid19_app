@@ -1,3 +1,5 @@
+$breakpoint-tablet: 767px;
+
 .covid-header {
 
     .title {
@@ -6,5 +8,18 @@
         font-weight: bold;
         color: crimson;
         padding: 20px;
+
+        @media (max-width: $breakpoint-tablet) {
+            padding-bottom: 0px;
+        }
+
+        .under-line {
+            border-bottom: 1px solid;
+            width: 3%;
+            margin: 0 auto;
+            margin-top: 5px;
+            margin-bottom: 20px;
+        }
+
     }
 }

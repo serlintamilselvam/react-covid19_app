@@ -6,10 +6,8 @@ function Header() {
         <div className="covid-header">
             <div className="title">
                 Covid-19 Dashboard
+                <div className="under-line"></div>
             </div>
-            {/* <div className="sub-heading">
-                Protect Protect yourself and others from getting sick
-            </div> */}
         </div>
     )
 }

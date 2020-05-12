@@ -88,7 +88,7 @@ function StatsComponent(props) {
                 }
             </div>
             <div className="graph-div">
-                <Pie data={props.world} legend={pieChartOptions.legend} width={300} height={300} options={pieChartOptions.options} />
+                <Pie data={props.world} legend={pieChartOptions.legend} width={250} height={250} options={pieChartOptions.options} />
             </div>
             <HistoryComponent oldStats={props.worldStats} />
             <NewStatsComponent newStats={props.worldStats} isWorldStats={props.isWorldStats} />
